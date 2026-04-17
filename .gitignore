@@ -1,0 +1,16 @@
+venv/
+__pycache__/
+*.py[cod]
+
+.vscode/
+.idea/
+.env
+
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+
