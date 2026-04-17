@@ -1,3 +1,6 @@
+import pandas as pd
+from ucimlrepo import fetch_ucirepo
+
 #helper classes
 class DatasetInfo:
     def __init__(self, name, uci_id, columns_to_drop):
@@ -16,3 +19,22 @@ class PreparedData:
         self.category_names = category_names 
         self.num_features = num_features     
         self.num_classes = num_classes       
+
+
+
+
+
+def load_dataset(dataset_info):
+    dataset = fetch_ucirepo(id=dataset_info.uci_id)
+    features = pd.DataFrame(dataset.data.features)
+
+    labels = pd.DataFrame(dataset.data.targets).iloc[:, 0]
+
+    for col in dataset_info.columns_to_drop:
+            if col in features.columns: 
+                features = features.drop(columns=[col])
+            
+    labels_clean = labels.dropna()
+    features_clean = features.loc[labels_clean.index]
+    
+    return features_clean.reset_index(drop=True), labels_clean.reset_index(drop=True)
