@@ -4,6 +4,8 @@ from tensorflow.keras.callbacks import EarlyStopping
 
 from model_builder import build_mlp, count_parameters
 
+from imblearn.over_sampling import SMOTE
+
 
 EPOCHS = 250
 BATCH_SIZE = 16
@@ -11,7 +13,7 @@ BATCH_SIZE = 16
 
 class TrainingConfig:
     def __init__(self, name, hidden_layers, dropout_rate = 0.0, l1 = 0.0, l2 = 0.0,
-                 early_stopping = False, augmentation = False, learning_rate = 1e-3):
+                 early_stopping = False, augmentation = False, smote = False, learning_rate = 1e-3):
         self.name = name
         self.hidden_layers = hidden_layers
         self.dropout_rate = dropout_rate
@@ -19,6 +21,7 @@ class TrainingConfig:
         self.l2 = l2
         self.early_stopping = early_stopping
         self.augmentation = augmentation
+        self.smote = smote
         self.learning_rate = learning_rate
 
 
@@ -41,12 +44,24 @@ def _augment_with_noise(X, y, noise_std=0.05, copies=1):
     return np.vstack(X_parts).astype(np.float32), np.concatenate(y_parts).astype(np.int32)
 
 
+def _augment_with_smote(X, y):
+    smote = SMOTE(random_state=42)
+    try:
+        X_resampled, y_resampled = smote.fit_resample(X, y)
+        return X_resampled.astype(np.float32), y_resampled.astype(np.int32)
+    except ValueError:
+        return X, y
+    
+
+
 def train_model(prepared_data, config):
     X_train = prepared_data.X_train.copy()
     y_train = prepared_data.y_train.copy()
 
     if config.augmentation:
         X_train, y_train = _augment_with_noise(X_train, y_train, noise_std=0.05, copies=1)
+    elif config.smote:
+        X_train, y_train = _augment_with_smote(X_train, y_train)
 
     model = build_mlp(
         num_features = prepared_data.num_features,
