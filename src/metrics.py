@@ -37,3 +37,15 @@ def compute_metrics(model, X, y, num_classes):
         metrics["auc"] = float("nan")
 
     return metrics
+
+
+def compute_all_metrics(model, prepared_data):
+    num_classes = prepared_data.num_classes
+    
+    results = {
+        "train": compute_metrics(model, prepared_data.X_train, prepared_data.y_train, num_classes),
+        "val": compute_metrics(model, prepared_data.X_val, prepared_data.y_val,num_classes),
+        "test": compute_metrics(model, prepared_data.X_test, prepared_data.y_test, num_classes)
+    }
+    
+    return results
