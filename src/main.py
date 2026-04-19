@@ -8,6 +8,8 @@ from trainer import TrainingConfig, train_model
 from metrics import compute_metrics
 from overfitting_detector import detect_overfitting
 
+from plots import plot_learning_curves
+
 # quick test
 DATASETS = [
     DatasetInfo(name = "Wine", uci_id = 109, columns_to_drop = []),
@@ -17,6 +19,9 @@ METHODS = [
     TrainingConfig(name = "baseline", hidden_layers = [512, 256, 128]),
     TrainingConfig(name = "dropout",  hidden_layers = [512, 256, 128], dropout_rate = 0.35),
 ]
+
+OUTPUT_DIR = "results"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def run_experiment():
     dataset_info = DATASETS[0]
@@ -35,10 +40,14 @@ def run_experiment():
         m_train = compute_metrics(result.model, data.X_train, data.y_train, data.num_classes)
         m_val = compute_metrics(result.model, data.X_val, data.y_val, data.num_classes)
         
-        analysis = detect_overfitting(m_train['accuracy'], m_val['accuracy'], m_val['accuracy'])
+        analysis = detect_overfitting(m_train['accuracy'], m_val['accuracy'], m_val['accuracy'], history_dict=result.history.history)
         
         print(f"Train Acc: {m_train['accuracy']:.4f} \nVal Acc: {m_val['accuracy']:.4f}")
         print(f"Status: {analysis.severity.upper()} (Gap: {analysis.train_val_gap:.4f})")
+
+
+        #plot test
+        plot_learning_curves(history = result.history.history, dataset_name = dataset_info.name, method_name = config.name, divergence_epoch = analysis.divergence_epoch,  output_dir = OUTPUT_DIR)
         
         results_summary.append({
             "method": config.name,
