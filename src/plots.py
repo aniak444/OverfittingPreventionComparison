@@ -80,3 +80,58 @@ def plot_roc_curve(y_true, y_score, num_classes, dataset_name, method_name, outp
     filename = f"roc_{dataset_name}_{method_name}.png"
     plt.savefig(os.path.join(output_dir, filename))
     plt.close()
+
+# heatmap
+def plot_overfitting_heatmap(results_df, output_dir):
+    pivot = results_df.pivot(index = "dataset", columns = "method", values = "train_val_gap")
+    plt.figure(figsize = (12, 4))
+    sns.heatmap(pivot, annot = True, fmt = ".3f", cmap = "RdYlGn_r", center = 0.0,
+                linewidths = 0.5, cbar_kws = {"label": "train_acc - val_acc"})
+    plt.title("Overfitting Heatmap: train_acc - val_acc\n(red = overfitting, green = good generalization)")
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "summary_overfitting_heatmap.png"), dpi=150)
+    plt.close()
+
+#accuracy comparison
+def plot_accuracy_comparison(results_df, output_dir):
+    datasets = results_df["dataset"].unique()
+    fig, axes = plt.subplots(1, len(datasets), figsize=(6 * len(datasets), 5))
+
+    for ax, dataset_name in zip(axes, datasets):
+        sub = results_df[results_df["dataset"] == dataset_name].sort_values("test_accuracy", ascending = False)
+        bars = ax.bar(sub["method"], sub["test_accuracy"])
+        ax.set_ylim(0, 1.12)
+        ax.set_title(dataset_name)
+        ax.set_ylabel("Test Accuracy")
+        ax.tick_params(axis = "x", rotation = 30)
+        for bar, acc, gap in zip(bars, sub["test_accuracy"], sub["train_val_gap"]):
+            color = "red" if gap > 0.12 else ("orange" if gap > 0.05 else "green")
+            ax.text(bar.get_x() + bar.get_width() / 2, acc + 0.01,
+                    f"{acc:.3f}\nΔ={gap:+.3f}",
+                    ha = "center", va = "bottom", fontsize = 7, color = color)
+
+    plt.suptitle("Test Accuracy by Method and Dataset", fontsize = 13)
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "summary_accuracy_comparison.png"), dpi=150)
+    plt.close()
+
+# training time
+def plot_training_time_comparison(results_df, output_dir):
+    avg_time = (
+        results_df.groupby("method")["train_time_sec"]
+        .mean()
+        .reset_index()
+        .sort_values("train_time_sec", ascending = False)
+    )
+    plt.figure(figsize = (10, 5))
+    bars = plt.bar(avg_time["method"], avg_time["train_time_sec"], color = "steelblue")
+    plt.title("Average Training Time per Method (all datasets)")
+    plt.ylabel("Time [seconds]")
+    plt.xlabel("Method")
+    plt.xticks(rotation = 25)
+    for bar, val in zip(bars, avg_time["train_time_sec"]):
+        plt.text(bar.get_x() + bar.get_width() / 2, val + 0.3,
+                 f"{val:.1f}s", ha = "center", va = "bottom", fontsize = 9)
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "summary_training_time.png"), dpi = 150)
+    plt.close()
