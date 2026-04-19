@@ -5,10 +5,10 @@ warnings.filterwarnings("ignore")
 
 from data_loader import DatasetInfo, load_dataset, prepare_and_split_data
 from trainer import TrainingConfig, train_model
-from metrics import compute_metrics
+from metrics import compute_metrics, predict_labels
 from overfitting_detector import detect_overfitting
 
-from plots import plot_learning_curves
+from plots import plot_learning_curves, plot_confusion_matrix
 
 # quick test
 DATASETS = [
@@ -46,9 +46,13 @@ def run_experiment():
         print(f"Status: {analysis.severity.upper()} (Gap: {analysis.train_val_gap:.4f})")
 
 
-        #plot test
+        #test plot generation
         plot_learning_curves(history = result.history.history, dataset_name = dataset_info.name, method_name = config.name, divergence_epoch = analysis.divergence_epoch,  output_dir = OUTPUT_DIR)
         
+        y_pred = predict_labels(result.model, data.X_val, data.num_classes)
+        plot_confusion_matrix(y_true = data.y_val, y_pred = y_pred, class_names = data.category_names, dataset_name = dataset_info.name, method_name = config.name, output_dir = OUTPUT_DIR)
+
+
         results_summary.append({
             "method": config.name,
             "gap": analysis.train_val_gap,

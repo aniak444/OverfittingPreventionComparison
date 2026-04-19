@@ -1,6 +1,9 @@
 import os
 import matplotlib.pyplot as plt
 
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+
 def plot_learning_curves(history, dataset_name, method_name, divergence_epoch, output_dir):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
     
@@ -31,5 +34,21 @@ def plot_learning_curves(history, dataset_name, method_name, divergence_epoch, o
     plt.tight_layout()
 
     filename = f"curves_{dataset_name}_{method_name}.png"
+    plt.savefig(os.path.join(output_dir, filename))
+    plt.close()
+
+
+
+def plot_confusion_matrix(y_true, y_pred, class_names, dataset_name, method_name, output_dir):
+    c_matrix = confusion_matrix(y_true, y_pred)
+    
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(c_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
+    plt.title(f'Confusion Matrix: {dataset_name} ({method_name})')
+    plt.ylabel('True Class')
+    plt.xlabel('Predicted Class')
+    
+    plt.tight_layout()
+    filename = f"confusion_matrix_{dataset_name}_{method_name}.png"
     plt.savefig(os.path.join(output_dir, filename))
     plt.close()
