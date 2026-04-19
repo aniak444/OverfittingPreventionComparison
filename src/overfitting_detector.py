@@ -11,16 +11,24 @@ class OverfittingResult:
 
 
 
-def get_divergence_epoch(history_dict):
+def get_divergence_epoch(history_dict, window = 5):
     if not history_dict or 'val_loss' not in history_dict:
         return None
+    
+    train_loss = history_dict['loss']
     val_loss = history_dict['val_loss']
-    
-    min_loss = min(val_loss)
-    epoch_number = val_loss.index(min_loss)
-    
-    return epoch_number + 1
 
+    n = min(len(train_loss), len(val_loss))
+
+    if n < window + 1:
+        return None
+    
+    for i in range(n - window):
+        val_rising = all(val_loss[i + k + 1] > val_loss[i + k] for k in range(window))
+        train_falling = all(train_loss[i + k + 1] < train_loss[i + k] for k in range(window))
+        if val_rising and train_falling:
+            return i + 1
+    return None
 
 
 def detect_overfitting(train_acc, val_acc, test_acc, history_dict=None):
