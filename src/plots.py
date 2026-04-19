@@ -2,7 +2,8 @@ import os
 import matplotlib.pyplot as plt
 
 import seaborn as sns
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, roc_curve, auc
+from sklearn.preprocessing import label_binarize
 
 def plot_learning_curves(history, dataset_name, method_name, divergence_epoch, output_dir):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
@@ -50,5 +51,32 @@ def plot_confusion_matrix(y_true, y_pred, class_names, dataset_name, method_name
     
     plt.tight_layout()
     filename = f"confusion_matrix_{dataset_name}_{method_name}.png"
+    plt.savefig(os.path.join(output_dir, filename))
+    plt.close()
+
+
+
+def plot_roc_curve(y_true, y_score, num_classes, dataset_name, method_name, output_dir):
+    plt.figure(figsize=(8, 6))
+
+    if num_classes == 2:
+            false_positive_rate, true_positive_rate, thresholds = roc_curve(y_true, y_score)
+            roc_auc = auc(false_positive_rate, true_positive_rate)
+            plt.plot(false_positive_rate, true_positive_rate, label=f'ROC (AUC = {roc_auc:.2f})')
+    else:
+         y_true_bin = label_binarize(y_true, classes=range(num_classes))
+         for i in range(num_classes):
+              false_positive_rate, true_positive_rate, thresholds = roc_curve(y_true_bin[:, i], y_score[:, i])
+              roc_auc = auc(false_positive_rate, true_positive_rate)
+              plt.plot(false_positive_rate, true_positive_rate, lw=2, label=f'Class {i} (AUC = {roc_auc:.2f})')
+
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title(f'ROC: {dataset_name} ({method_name})')
+    plt.legend(loc="lower right")
+    plt.grid(True)
+    
+    filename = f"roc_{dataset_name}_{method_name}.png"
     plt.savefig(os.path.join(output_dir, filename))
     plt.close()

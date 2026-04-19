@@ -8,7 +8,7 @@ from trainer import TrainingConfig, train_model
 from metrics import compute_metrics, predict_labels
 from overfitting_detector import detect_overfitting
 
-from plots import plot_learning_curves, plot_confusion_matrix
+from plots import plot_learning_curves, plot_confusion_matrix, plot_roc_curve
 
 # quick test
 DATASETS = [
@@ -52,6 +52,8 @@ def run_experiment():
         y_pred = predict_labels(result.model, data.X_val, data.num_classes)
         plot_confusion_matrix(y_true = data.y_val, y_pred = y_pred, class_names = data.category_names, dataset_name = dataset_info.name, method_name = config.name, output_dir = OUTPUT_DIR)
 
+        y_score = result.model.predict(data.X_val, verbose=0)
+        plot_roc_curve(y_true = data.y_val, y_score = y_score, num_classes = data.num_classes, dataset_name = dataset_info.name, method_name = config.name, output_dir = OUTPUT_DIR)
 
         results_summary.append({
             "method": config.name,
