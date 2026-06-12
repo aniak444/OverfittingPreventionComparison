@@ -19,18 +19,32 @@ DATASETS = [
     DatasetInfo(name="Vehicle", uci_id=149, columns_to_drop=[]),
 ]
 
+# large
+# METHODS = [
+#     TrainingConfig(name = "baseline", hidden_layers = [512, 256, 128]),
+#     TrainingConfig(name = "dropout",  hidden_layers = [512, 256, 128], dropout_rate = 0.35),
+#     TrainingConfig(name="l1_reg", hidden_layers=[512, 256, 128], l1=0.001),
+#     TrainingConfig(name="l2_reg", hidden_layers=[512, 256, 128], l2=0.001),
+#     TrainingConfig(name="early_stopping", hidden_layers=[512, 256, 128], early_stopping=True),
+#     TrainingConfig(name="simple_model", hidden_layers=[64, 32]),
+#     TrainingConfig(name="augmentation", hidden_layers=[512, 256, 128], augmentation=True),
+#     TrainingConfig(name="smote", hidden_layers=[512, 256, 128], smote=True),
+# ]
+
+# medium
 METHODS = [
-    TrainingConfig(name = "baseline", hidden_layers = [512, 256, 128]),
-    TrainingConfig(name = "dropout",  hidden_layers = [512, 256, 128], dropout_rate = 0.35),
-    TrainingConfig(name="l1_reg", hidden_layers=[512, 256, 128], l1=0.001),
-    TrainingConfig(name="l2_reg", hidden_layers=[512, 256, 128], l2=0.001),
-    TrainingConfig(name="early_stopping", hidden_layers=[512, 256, 128], early_stopping=True),
+    TrainingConfig(name = "baseline", hidden_layers = [256, 128, 64]),
+    TrainingConfig(name = "dropout",  hidden_layers = [256, 128, 64], dropout_rate = 0.35),
+    TrainingConfig(name="l1_reg", hidden_layers=[256, 128, 64], l1=0.001),
+    TrainingConfig(name="l2_reg", hidden_layers=[256, 128, 64], l2=0.001),
+    TrainingConfig(name="early_stopping", hidden_layers=[256, 128, 64], early_stopping=True),
     TrainingConfig(name="simple_model", hidden_layers=[64, 32]),
-    TrainingConfig(name="augmentation", hidden_layers=[512, 256, 128], augmentation=True),
-    TrainingConfig(name="smote", hidden_layers=[512, 256, 128], smote=True),
+    TrainingConfig(name="augmentation", hidden_layers=[256, 128, 64], augmentation=True),
+    TrainingConfig(name="smote", hidden_layers=[256, 128, 64], smote=True),
 ]
 
-OUTPUT_DIR = "results"
+# OUTPUT_DIR = "results"
+OUTPUT_DIR = "results_medium"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def run_experiment():
