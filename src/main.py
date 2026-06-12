@@ -14,9 +14,9 @@ from plots import plot_learning_curves, plot_confusion_matrix, plot_roc_curve, p
 
 
 DATASETS = [
-    DatasetInfo(name = "Wine", uci_id = 109, columns_to_drop = []),
-    DatasetInfo(name="Breast_Cancer", uci_id=17, columns_to_drop=["ID"]),
-    DatasetInfo(name="Iris", uci_id=53, columns_to_drop=[]),
+    DatasetInfo(name="Yeast", uci_id=110, columns_to_drop=["Sequence_Name"]),
+    DatasetInfo(name="Cardiotocography", uci_id=193, columns_to_drop=[]),
+    DatasetInfo(name="Vehicle", uci_id=149, columns_to_drop=[]),
 ]
 
 METHODS = [

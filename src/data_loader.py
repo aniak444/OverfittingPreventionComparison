@@ -44,7 +44,14 @@ def load_dataset(dataset_info):
 
 
 #data preparation function
-def prepare_and_split_data(features, labels):
+def prepare_and_split_data(features, labels, min_samples_per_class=5):
+    label_series = pd.Series(labels.values)
+    counts = label_series.value_counts()
+    valid_classes = counts[counts >= min_samples_per_class].index
+    mask = label_series.isin(valid_classes)
+    features = features[mask.values].reset_index(drop=True)
+    labels = label_series[mask].reset_index(drop=True)
+
     encoder = LabelEncoder()
     labels_encoded = encoder.fit_transform(labels.astype(str))
     class_names = list(encoder.classes_)
